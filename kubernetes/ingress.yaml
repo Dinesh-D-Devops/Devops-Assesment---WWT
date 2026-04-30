@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mindmeld-api-ingress
+  namespace: default
+  annotations:
+    # Tells AWS to create an Application Load Balancer
+    kubernetes.io/ingress.class: alb
+    # Makes the ALB accessible from the internet
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # Routes traffic directly to the pod IPs rather than through the EC2 nodes
+    alb.ingress.kubernetes.io/target-type: ip
+    # Checks the health of the pods before sending traffic
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/success-codes: 200,404,400
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mindmeld-api-service
+                port:
+                  number: 80
